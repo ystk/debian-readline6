@@ -1,6 +1,96 @@
+readline6 (6.2+dfsg-0.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Remove non DFSG-compliant files from source:
+    doc/{history,rlman,rluserman,readline}.{dvi,html,info,pdf,ps,texi}.
+    rluserman thus removed from /usr/share/info/ in readline-common and
+    history and readline also removed from /usr/share/info/ in
+    libreadline6-dev. Closes: #695784.
+
+ -- David Prévot <taffit@debian.org>  Sun, 30 Dec 2012 17:20:39 -0400
+
+readline6 (6.2-9) unstable; urgency=low
+
+  * Apply upstream patches 002 - 004. Fixes:
+    - The readline shared library helper script needs to be updated for
+      Mac OS X 10.7 (Lion, darwin11).
+    - A change between readline-6.1 and readline-6.2 to prevent the readline
+      input hook from being called too frequently had the side effect of
+      causing delays when reading pasted input on systems such as Mac OS X.
+      This patch fixes those delays while retaining the readline-6.2 behavior.
+      Closes: #687100.
+    - Attempting to redo (using `.') the vi editing mode `cc', `dd', or `yy'
+      commands leads to an infinite loop.
+  * Make examples Makefile Multi-Arch installable (Shawn Landden).
+    Closes: #670030.
+  * Fix building with -Wformat-security, and pass CPPFLAGS (Simon Ruderich).
+    Closes: #687717.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 17 Sep 2012 14:10:00 +0200
+
+readline6 (6.2-8) unstable; urgency=low
+
+  * Mark readline-common Multi-Arch: foreign. Closes: #648098.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 21 Nov 2011 23:21:05 +0100
+
+readline6 (6.2-7) unstable; urgency=low
+
+  * Fix build failure on hurd-i386 (Samuel Thibault). Closes: #644777.
+  * Use dpkg-buildflags to set CFLAGS and LDFLAGS.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 09 Oct 2011 11:23:45 +0200
+
+readline6 (6.2-6) unstable; urgency=low
+
+  * lib{,32}readline6-dev: Depend on lib{,32}tinfo-dev instead of
+    lib{,32}ncurses5-dev.
+  * Don't link rlfe against any libncurses* library.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 04 Oct 2011 16:33:44 +0200
+
+readline6 (6.2-5) unstable; urgency=low
+
+  * Do not link against any libncurses* library, just against libtinfo.
+  * Fix corrupt display for history search in vi-mode, 256-color prompt
+    (Micah Cowan). Closes: #614718, LP: #721982.
+  * Remove unused build-dep on lsb-release. Closes: #642383.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 01 Oct 2011 11:56:50 +0200
+
+readline6 (6.2-4) unstable; urgency=low
+
+  * Fix broken .so symlinks.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 24 Aug 2011 10:08:49 +0200
+
+readline6 (6.2-3) unstable; urgency=low
+
+  * Add multi-arch support (Riku Voipio). Closes: #638850.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 23 Aug 2011 00:25:58 +0200
+
+readline6 (6.2-2) unstable; urgency=low
+
+  * Re-apply patch from 6.1-3, fixing kfreebsd build failure. Closes: #626704.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 18 May 2011 12:04:44 +0200
+
+readline6 (6.2-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 23 Apr 2011 14:37:46 +0200
+
+readline6 (6.2~alpha1-1) experimental; urgency=low
+
+  * New upstream version, first alpha release.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 22 Nov 2010 10:30:08 +0100
+
 readline6 (6.1-3) unstable; urgency=low
 
-  * Fix build failure on kreebsd. Closes: #577234.
+  * Fix build failure on kfreebsd. Closes: #577234.
 
  -- Matthias Klose <doko@debian.org>  Sun, 30 May 2010 20:31:27 +0200
 

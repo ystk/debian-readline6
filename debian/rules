@@ -2,19 +2,20 @@
 # -*- makefile -*-
 
 soversion = 6
-libversion = $(soversion).1
+libversion = $(soversion).2
 
 # architecture dependent variables
 DEB_HOST_ARCH		?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_ARCH_OS	?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_MULTIARCH	?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
 ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
 CROSS=$(DEB_HOST_GNU_TYPE)-gcc
 else
 CROSS=gcc
 endif
-distribution := $(shell lsb_release -is)
 
 ifneq (,$(findstring /$(DEB_HOST_ARCH)/,/i386/powerpc/sparc/s390/))
   build64 = yes
@@ -56,11 +57,11 @@ ifneq (,$(findstring /$(DEB_HOST_ARCH)/,/amd64/ppc64/))
   endif
 endif
 
-ifeq ($(DEB_HOST_ARCH_OS),netbsd)
-  CC_LINK_FLAGS =
-else
-  CC_LINK_FLAGS = -Wl,
-endif
+CFLAGS := $(shell dpkg-buildflags --get CFLAGS)
+CPPFLAGS := $(shell dpkg-buildflags --get CPPFLAGS)
+LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
+CFLAGS := $(CFLAGS) -I/usr/include/ncursesw
+
 CC	= $(CROSS)
 
 SHELL	= bash
@@ -107,24 +108,25 @@ configure-stamp:
 	mkdir $(builddir)
 	find . -type d | xargs chmod g-s
 	cd $(builddir) && \
-	  CC=$(CC) $(srcdir)/configure \
-		--with-curses --prefix=/usr\
-		--host=$(DEB_HOST_GNU_TYPE)
+	  CC=$(CC) CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" $(srcdir)/configure \
+		--prefix=/usr\
+		--host=$(DEB_HOST_GNU_TYPE) \
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 ifneq ($(build32),)
 	rm -rf $(builddir32)
 	mkdir $(builddir32)
 	cd $(builddir32) && \
-	  CC="$(CC32)" $(srcdir)/configure \
-		--host=$(HOST32) --with-curses --prefix=/usr
+	  CC="$(CC32)" CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" $(srcdir)/configure \
+		--host=$(HOST32) --prefix=/usr
 endif
 
 ifneq ($(build64),)
 	rm -rf $(builddir64)
 	mkdir $(builddir64)
 	cd $(builddir64) && \
-	  CC="$(CC64)" $(srcdir)/configure \
-		--host=$(HOST64) --with-curses --prefix=/usr
+	  CC="$(CC64)" CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" $(srcdir)/configure \
+		--host=$(HOST64) --prefix=/usr
 endif
 
 	touch configure-stamp
@@ -134,32 +136,35 @@ build: build-stamp build-rlfe-stamp
 else
 build: build-stamp
 endif
+build-arch: build
+build-indep: build
 
 build-stamp: configure-stamp
 	dh_testdir
 	$(MAKE) -C $(builddir) \
-	    CFLAGS="-g -O2" \
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
 	    SHOBJ_CFLAGS="-fPIC -D_REENTRANT" \
-	    SHLIB_LIBS="-lncurses"
+	    SHOBJ_LDFLAGS='$(LDFLAGS) -shared' \
+	    SHLIB_LIBS="-ltinfo"
 
 ifneq ($(build32),)
 	$(MAKE) -C $(builddir32) \
 	    CC="$(CC32)" \
-	    CFLAGS="-g -O2" \
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
 	    SHOBJ_CFLAGS="-fPIC -D_REENTRANT" \
-	    SHOBJ_LDFLAGS='-shared' \
-	    SHLIB_LIBS="-lncurses" \
-	    SHLIB_XLDFLAGS='$(CC_LINK_FLAGS)-soname,`echo $$@ | sed s/\\..$$$$//`'
+	    SHOBJ_LDFLAGS='$(LDFLAGS) -shared' \
+	    SHLIB_LIBS="-ltinfo"
+	    SHLIB_XLDFLAGS='-soname,`echo $$@ | sed s/\\..$$$$//`'
 endif
 
 ifneq ($(build64),)
 	$(MAKE) -C $(builddir64) \
 	    CC="$(CC64)" \
-	    CFLAGS="-g -O2" \
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
 	    SHOBJ_CFLAGS="-fPIC -D_REENTRANT" \
-	    SHOBJ_LDFLAGS='-shared' \
-	    SHLIB_LIBS="-lncurses" \
-	    SHLIB_XLDFLAGS='$(CC_LINK_FLAGS)-soname,`echo $$@ | sed s/\\..$$$$//`'
+	    SHOBJ_LDFLAGS='$(LDFLAGS) -shared' \
+	    SHLIB_LIBS="-ltinfo"
+	    SHLIB_XLDFLAGS='-soname,`echo $$@ | sed s/\\..$$$$//`'
 endif
 	$(MAKE) -C $(builddir)/doc info
 
@@ -179,7 +184,9 @@ build-rlfe-stamp: configure-stamp
 	cd $(builddir)/examples/rlfe \
 		&& ./configure --prefix=/usr --host=$(DEB_HOST_GNU_TYPE)
 	$(MAKE) -C $(builddir)/examples/rlfe \
-	    CFLAGS="-g -O2" LDFLAGS="-g -L$(builddir)/shlib" rlfe
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS)" \
+	    LDFLAGS="$(LDFLAGS) -g -L$(builddir)/shlib" \
+	    LIBS="-lreadline -ltinfo -lutil" rlfe
 	touch build-rlfe-stamp
 
 clean:
@@ -203,7 +210,8 @@ install-stamp:
 	rm -rf $(d)
 	mkdir -p $(d)/usr/bin
 	$(MAKE) -C $(builddir) install \
-	    CFLAGS="-g -O2 -D_REENTRANT" \
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS) -D_REENTRANT" \
+	    SHOBJ_LDFLAGS='-shared $(LDFLAGS)' \
 	    DESTDIR=$(CURDIR)/$(d) \
 	    mandir=/usr/share/man \
 	    infodir=/usr/share/info
@@ -211,9 +219,9 @@ install-stamp:
 	: # move $(p_rl)
 	dh_installdirs -p$(p_rl) \
 		etc \
-		lib \
+		lib/$(DEB_HOST_MULTIARCH) \
 		usr/share/doc
-	cp -a $(d)/usr/lib/lib{history,readline}.so.* $(d_rl)/lib/
+	cp -a $(d)/usr/lib/$(DEB_HOST_MULTIARCH)/lib{history,readline}.so.* $(d_rl)/lib/$(DEB_HOST_MULTIARCH)/
 #	cp -a $(d)/usr/lib/lib{history,readline}.so.$(libversion) $(d_rl)/lib/
 #	ln -s libhistory.so.$(libversion) \
 #		$(d_rl)/lib/libhistory.so.$(soversion)
@@ -224,21 +232,19 @@ install-stamp:
 	dh_installdirs -p$(p_comm) \
 		etc \
 		usr/share/readline \
-		usr/share/info \
 		usr/share/doc
 	mv $(d)/usr/share/man $(d_comm)/usr/share/.
 	mv $(d_comm)/usr/share/man/man3/history.3 \
 		$(d_comm)/usr/share/man/man3/history.3readline
 	mv $(d_comm)/usr/share/man/man3/readline.3 \
 		$(d_comm)/usr/share/man/man3/readline.3readline
-	mv $(d)/usr/share/info/rluserman.info $(d_comm)/usr/share/info/.
 	install -m 644 debian/inputrc $(d_comm)/usr/share/readline/
 
 	: # move $(p_rlg)
 	dh_installdirs -p$(p_rlg) \
 		usr/lib/debug \
 		usr/share/doc
-	mv $(d)/usr/lib/lib{history,readline}.so.$(libversion) \
+	mv $(d)/usr/lib/$(DEB_HOST_MULTIARCH)/lib{history,readline}.so.$(libversion) \
 		$(d_rlg)/usr/lib/debug/.
 	ln -s libhistory.so.$(libversion) \
 		$(d_rlg)/usr/lib/debug/libhistory.so.$(soversion)
@@ -247,15 +253,15 @@ install-stamp:
 
 	: # move $(p_rld)
 	dh_installdirs -p$(p_rld) \
-		usr/lib \
-		usr/share/doc \
-		usr/share/info
-	ln -s /lib/libhistory.so.$(soversion) $(d_rld)/usr/lib/libhistory.so
-	ln -s /lib/libreadline.so.$(soversion) $(d_rld)/usr/lib/libreadline.so
-	mv $(d)/usr/lib/lib{history,readline}.a	$(d_rld)/usr/lib/.
+		usr/lib/$(DEB_HOST_MULTIARCH)/ \
+		usr/share/doc
+	ln -s /lib/$(DEB_HOST_MULTIARCH)/libhistory.so.$(soversion) \
+		$(d_rld)/usr/lib/$(DEB_HOST_MULTIARCH)/libhistory.so
+	ln -s /lib/$(DEB_HOST_MULTIARCH)/libreadline.so.$(soversion) \
+		$(d_rld)/usr/lib/$(DEB_HOST_MULTIARCH)/libreadline.so
+	mv $(d)/usr/lib/$(DEB_HOST_MULTIARCH)/lib{history,readline}.a \
+		$(d_rld)/usr/lib/$(DEB_HOST_MULTIARCH)/.
 	mv $(d)/usr/include $(d_rld)/usr/.
-	mv $(d)/usr/share/info/{readline.info,history.info} \
-		$(d_rld)/usr/share/info/.
 
 	: # remove HAVE_CONFIG_H from installed headers
 	awk '/^#if defined \(HAVE_CONFIG_H\)/, /^#endif/ \
@@ -285,9 +291,9 @@ ifneq ($(build32),)
 	mkdir -p $(d32)/usr/bin
 	$(MAKE) -C $(builddir32) install \
 	    CC="$(CC32)" \
-	    CFLAGS="-g -O2 -D_REENTRANT" \
-	    SHOBJ_LDFLAGS='-shared' \
-	    SHLIB_XLDFLAGS='$(CC_LINK_FLAGS)-soname,`echo $$@ | sed s/\\..$$$$//`' \
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS) -D_REENTRANT" \
+	    SHOBJ_LDFLAGS='-shared $(LDFLAGS)' \
+	    SHLIB_XLDFLAGS='-soname,`echo $$@ | sed s/\\..$$$$//`' \
 	    SHLIB_LIBS=-lncurses \
 	    DESTDIR=$(CURDIR)/$(d32) \
 	    mandir=/usr/share/man \
@@ -318,9 +324,9 @@ ifneq ($(build64),)
 	mkdir -p $(d64)/usr/bin
 	$(MAKE) -C $(builddir64) install \
 	    CC="$(CC64)" \
-	    CFLAGS="-g -O2 -D_REENTRANT" \
-	    SHOBJ_LDFLAGS='-shared' \
-	    SHLIB_XLDFLAGS='$(CC_LINK_FLAGS)-soname,`echo $$@ | sed s/\\..$$$$//`' \
+	    CFLAGS="$(CFLAGS)" CPPFLAGS="$(CPPFLAGS) -D_REENTRANT" \
+	    SHOBJ_LDFLAGS='-shared $(LDFLAGS)' \
+	    SHLIB_XLDFLAGS='-soname,`echo $$@ | sed s/\\..$$$$//`' \
 	    SHLIB_LIBS=-lncurses \
 	    DESTDIR=$(CURDIR)/$(d64) \
 	    mandir=/usr/share/man \

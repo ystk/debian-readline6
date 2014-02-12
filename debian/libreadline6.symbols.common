@@ -31,6 +31,8 @@
  _rl_complete_show_all@Base 6.0
  _rl_complete_show_unmodified@Base 6.0
  _rl_completion_case_fold@Base 6.0
+ _rl_completion_case_map@Base 6.2~alpha1
+ _rl_completion_columns@Base 6.2~alpha1
  _rl_completion_prefix_display_length@Base 6.0
  _rl_control_keypad@Base 6.0
  _rl_convert_meta_chars_to_ascii@Base 6.0
@@ -61,6 +63,7 @@
  _rl_find_prev_mbchar@Base 6.0
  _rl_fix_last_undo_of_type@Base 6.0
  _rl_fix_point@Base 6.0
+ _rl_forward_char_internal@Base 6.2~alpha1
  _rl_free_history_entry@Base 6.0
  _rl_free_match_list@Base 6.0
  _rl_free_saved_history_line@Base 6.0
@@ -98,6 +101,7 @@
  _rl_make_prompt_for_search@Base 6.0
  _rl_mark_modified_lines@Base 6.0
  _rl_match_hidden_files@Base 6.0
+ _rl_menu_complete_prefix_first@Base 6.2~alpha1
  _rl_meta_flag@Base 6.0
  _rl_move_cursor_relative@Base 6.0
  _rl_move_vert@Base 6.0
@@ -182,12 +186,14 @@
  _rl_unget_char@Base 6.0
  _rl_update_final@Base 6.0
  _rl_uppercase_p@Base 6.0
+ _rl_vi_domove_callback@Base 6.2~alpha1
  _rl_vi_done_inserting@Base 6.0
  _rl_vi_initialize_line@Base 6.0
  _rl_vi_last_command@Base 6.0
  _rl_vi_reset_last@Base 6.0
  _rl_vi_set_last@Base 6.0
  _rl_vi_textmod_command@Base 6.0
+ _rl_vimvcxt@Base 6.2~alpha1
  _rl_vis_botlin@Base 6.0
  _rl_walphabetic@Base 6.0
  _rl_want_redisplay@Base 6.0
