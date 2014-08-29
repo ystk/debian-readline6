@@ -4,9 +4,9 @@ Don't set a runtime path for linking the shared libraries
 
 Index: b/support/shobj-conf
 ===================================================================
---- a/support/shobj-conf	2010-04-10 12:05:07.742337113 +0000
-+++ b/support/shobj-conf	2010-04-10 12:12:39.752338214 +0000
-@@ -114,7 +114,7 @@
+--- a/support/shobj-conf
++++ b/support/shobj-conf
+@@ -128,7 +128,7 @@
  	SHOBJ_LD='${CC}'
  	SHOBJ_LDFLAGS='-shared -Wl,-soname,$@'
  

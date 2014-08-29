@@ -1,7 +1,10 @@
-readline62-001.diff
-readline62-002.diff
-readline62-003.diff
-readline62-004.diff
+readline63-001.diff
+readline63-002.diff
+readline63-003.diff
+readline63-004.diff
+readline63-005.diff
+readline63-006.diff
+bash43-021.diff
 rl-attribute.diff
 rl-header.diff
 rl-no-cross-check.diff
@@ -9,7 +12,7 @@ rl-no-rpath.diff
 rlfe-history.diff
 rlfe-kfreebsd.diff
 rlfe-tinfo.diff
-dynamic-msg_buf.diff
-examples-makefile-multiarch.diff
+#examples-makefile-multiarch.diff
 fix-wformat-security.diff
-no-non-DFSG-doc.diff
+configure-tinfo.diff
+rlfe-signal-rvt.diff

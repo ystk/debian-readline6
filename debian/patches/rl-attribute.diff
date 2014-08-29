@@ -4,9 +4,9 @@ Do not redefine __attribute__, define macro __rl_attribute__
 
 Index: b/readline.h
 ===================================================================
---- a/readline.h	2010-04-10 12:11:44.432336942 +0000
-+++ b/readline.h	2010-04-10 12:12:39.302337290 +0000
-@@ -376,7 +376,7 @@
+--- a/readline.h
++++ b/readline.h
+@@ -380,7 +380,7 @@
  extern int rl_crlf PARAMS((void));
  
  #if defined (USE_VARARGS) && defined (PREFER_STDARG)
@@ -17,8 +17,8 @@ Index: b/readline.h
  #endif
 Index: b/rlstdc.h
 ===================================================================
---- a/rlstdc.h	2010-04-10 12:05:07.842336325 +0000
-+++ b/rlstdc.h	2010-04-10 12:12:39.302337290 +0000
+--- a/rlstdc.h
++++ b/rlstdc.h
 @@ -36,10 +36,10 @@
  #  endif
  #endif
@@ -33,4 +33,4 @@ Index: b/rlstdc.h
 +#  define __rl_attribute__(x)
  #endif
  
- #endif /* !_RL_STDC_H_ */
+ /* Moved from config.h.in because readline.h:rl_message depends on these

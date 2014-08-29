@@ -5,6 +5,7 @@
  _rl_find_prev_mbchar@Base 6.0
  _rl_get_char_len@Base 6.0
  _rl_is_mbchar_matched@Base 6.0
+ _rl_utf8locale@Base 6.3
  add_history@Base 6.0
  add_history_time@Base 6.0
  alloc_history_entry@Base 6.0

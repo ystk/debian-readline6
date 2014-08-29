@@ -1,13 +1,82 @@
-readline6 (6.2+dfsg-0.1) unstable; urgency=low
+readline6 (6.3-8) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  * Remove non DFSG-compliant files from source:
-    doc/{history,rlman,rluserman,readline}.{dvi,html,info,pdf,ps,texi}.
-    rluserman thus removed from /usr/share/info/ in readline-common and
-    history and readline also removed from /usr/share/info/ in
-    libreadline6-dev. Closes: #695784.
+  * Split out a readline-doc package for documentation and examples.
+    Closes: #749168.
 
- -- David Prévot <taffit@debian.org>  Sun, 30 Dec 2012 17:20:39 -0400
+ -- Matthias Klose <doko@debian.org>  Sun, 03 Aug 2014 19:13:20 +0200
+
+readline6 (6.3-7) unstable; urgency=medium
+
+  * Apply upstream patches 001 - 006. Fixes:
+    - The `.' command in vi mode cannot undo multi-key commands beginning with
+      `c', `d', and `y' (command plus motion specifier).
+    - When in callback mode, some readline commands can cause readline to
+      segfault by passing invalid contexts to callback functions.
+    - There are debugging functions in the readline release that are
+      theoretically exploitable as security problems.
+      They are not public functions, but have global linkage.
+    - The signal handling changes to bash and readline (to avoid running any
+      code in a signal handler context) cause the cursor to be placed on the
+      wrong line of a multi-line command after a ^C interrupts editing.
+    - There are still applications using the deprecated Function/VFunction/etc.
+      typedefs in rltypedefs.h.  This patch restores the typedefs, but attempts
+      to mark them as deprecated using gcc/clang attributes.
+    - Using reverse-i-search when horizontal scrolling is enabled does not
+      redisplay the entire line containing the successful search results.
+  * Remove local patches included in the upstream updates.
+  * Apply upstream bash patch bash43-021:
+    - When the readline `revert-all-at-newline' option is set, pressing newline
+      when the current line is one retrieved from history results in a double
+      free and a segmentation fault.
+  * Add home code for rxvt in inputrc. Closes: #722087.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 03 Aug 2014 18:34:31 +0200
+
+readline6 (6.3-6) unstable; urgency=medium
+
+  * Really apply the patch to fix the display issue when a multiline
+    command is aborted with ^C. Closes: #743603.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 05 Apr 2014 13:18:20 +0200
+
+readline6 (6.3-5) unstable; urgency=medium
+
+  * Fix a display issue when a multiline command is aborted with ^C.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 29 Mar 2014 18:03:53 +0100
+
+readline6 (6.3-4) unstable; urgency=medium
+
+  * Fix an issue in vi-mode, not re-doing the latest "dw", "dl", "D", ...
+    commands.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 19 Mar 2014 18:35:48 +0100
+
+readline6 (6.3-3) unstable; urgency=medium
+
+  * Fix patching the installed example Makefile.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 19 Mar 2014 17:07:30 +0100
+
+readline6 (6.3-2) unstable; urgency=medium
+
+  * Fix segfault in _rl_dispatch_callback(). Closes: #741555.
+  * Remove build specific paths from the installed examples Makefile.
+    Closes: #670030, #693248.
+  * 6.3 includes the documentation again. Closes: #726581.
+  * Fix symbols file for non-linux architectures.
+  * Fix build warning building rlfe (assignment makes pointer from integer
+    without a cast).
+  * Fix lintian permission warnings.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 19 Mar 2014 13:42:21 +0100
+
+readline6 (6.3-1) unstable; urgency=medium
+
+  * readline 6.3 release.
+  * Update symbols files.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 03 Mar 2014 08:24:21 +0100
 
 readline6 (6.2-9) unstable; urgency=low
 

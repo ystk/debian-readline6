@@ -6,8 +6,8 @@
 @DPATCH@
 Index: b/examples/rlfe/rlfe.c
 ===================================================================
---- a/examples/rlfe/rlfe.c	2010-04-10 12:05:07.722337045 +0000
-+++ b/examples/rlfe/rlfe.c	2010-04-10 12:12:39.892336905 +0000
+--- a/examples/rlfe/rlfe.c
++++ b/examples/rlfe/rlfe.c
 @@ -154,21 +154,27 @@
  static pid_t child = -1;
  
@@ -40,7 +40,7 @@ Index: b/examples/rlfe/rlfe.c
  volatile int propagate_sigwinch = 0;
  
  /* sigwinch_handler
-@@ -703,8 +709,7 @@
+@@ -710,8 +716,7 @@
  	  if (count <= 0)
  	    {
  	      DPRINT0 ("(Connection closed by foreign host.)\n");
